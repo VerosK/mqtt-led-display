@@ -20,10 +20,14 @@ ESP8266 (NodeMCU, D1)
 Device configuration is handled by [Homie configuration][homie-config]. 
 
 * If the LED is on, the device is waiting for configuration. Connect to device WiFi, and upload your configuration 
-  to http://192.168.123.1
+  to http://192.168.123.1 
 
-* You can also send JSON to your device - see [Homie JSON configuration][homie-json-config].
+* You can also send JSON to your device over HTTP - see [Homie JSON configuration][homie-json-config].
 
+* You can also save `homie/config.json` JSON to spiffs filesystem of the device. Make copy of 
+  `data/homie/config.json.example`  to `data/homie/config.json` and update the values according
+  to [Homie JSON configuration][homie-json-config]. Flash the image to your device - PlatformIO
+  will probably do it by default.
 
 ## License
 
