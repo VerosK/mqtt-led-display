@@ -1,0 +1,18 @@
+{
+    "name": "DOT display",
+    "device_id": "display",
+    "device_stats_interval": 300,
+    "wifi": {
+        "ssid": "nodata",
+        "password": "nodata"
+    },
+    "mqtt": {
+        "host": "mqtt.example.net",
+        "port": 1883,
+        "base_topic": "homie/",
+        "auth": false
+    },
+    "ota": {
+        "enabled": true
+    }
+}
