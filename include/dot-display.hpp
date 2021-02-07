@@ -24,5 +24,10 @@ public:
     {
         this->display.setContrast(n);
     }
-    void uploadProgress(); // draw
+    void drawBitmap(uint8_t width, uint8_t height, const uint8_t *bitmap);
+
+    void startPixels() { this->display.clearBuffer(); this->display.setDrawColor(1); }
+    void flushPixels() { this->display.sendBuffer(); }
+    void drawPixel(uint8_t x, uint8_t y);        
+    void uploadProgress();
 };

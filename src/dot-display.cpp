@@ -50,3 +50,15 @@ void DotDisplay::uploadProgress()
     this->display.drawPixel(phase, 0);
     this->display.sendBuffer();
 }
+
+void DotDisplay::drawBitmap(uint8_t width, uint8_t height, const uint8_t *bitmap) 
+{
+    this->display.setColorIndex(1); // bitmap is drawn
+    this->display.setBitmapMode(0); // bitmap is not transparent
+    this->display.drawXBM(0, 0, width, height, bitmap);
+    this->display.sendBuffer();
+}
+
+void DotDisplay::drawPixel(uint8_t x, uint8_t y) {
+    this->display.drawPixel(x, y);
+}

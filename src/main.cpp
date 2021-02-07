@@ -5,8 +5,12 @@
 #define FIRMWARE_NAME "dot-display"
 #define FIRMWARE_VERSION "0.0.6"
 
+/* width of the display in pixels */
+const unsigned int DISPLAY_WIDTH = 32; 
+
+/* display conection - CLK -> D5, DATA IN -> D7, CS -> D8 */
 DotDisplay the_display(/* clock*/ D5, /*data*/ D7, /*cs=*/D8);
-HomieNode textNode("text", "text", "string");
+HomieNode display_node("display", "display", "string");
 
 void onHomieEvent(const HomieEvent &event)
 {
@@ -64,7 +68,7 @@ bool setIntensityHandler(const HomieRange &range, const String &value)
     return true;
   new_intensity = value.toInt();
 
-  textNode.setProperty("intensity").send(String(new_intensity));
+  display_node.setProperty("intensity").send(String(new_intensity));
   the_display.setIntensity(new_intensity);
   return true;
 }
@@ -79,10 +83,46 @@ bool setTextHandler(const HomieRange &range, const String &value)
   return true;
 }
 
+int c_to_hex(const unsigned char c) {
+  /* convert character to hex int */
+  if (c >= '0' && c <='9') return (c-'0');
+  if (c >= 'A' && c <='F') return (c-'A'+10);
+  if (c >= 'a' && c <='f') return (c-'a'+10);
+  return 0;
+}
+
+bool setImageHandler(const HomieRange &range, const String &value)
+{
+  static uint8_t pixels[DISPLAY_WIDTH];  
+  Homie.getLogger() << "ImageReceived: start" << endl;  
+  // zero 
+  memset(pixels, 0, sizeof(pixels));
+  unsigned int x = 0;  
+  uint8_t px = 0;
+  
+  the_display.startPixels();  
+  for (x = 0; x < DISPLAY_WIDTH; x++) {
+    if (value.length() < (2*x+1)) 
+      break;    
+    px = c_to_hex(value[2*x]) * 16 + c_to_hex(value[2*x+1]);            
+    // Homie.getLogger() << px << ",";    
+    for (uint8_t n = 0; n < 8; n++) {
+      if (px & (1 << n)) {         
+        the_display.drawPixel(x, n);
+      }
+    //  Homie.getLogger() << endl;
+    }    
+    // Homie.getLogger() << value[2*x] << "->" << c_to_hex(value[2*x]) << ",";    
+  }  
+  Homie.getLogger() << endl;
+  the_display.flushPixels();
+  return true;
+}
+
 void setup()
 {
   the_display.begin();
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial << endl;
 
   Homie.getLogger() << "wifiReset: start" << endl;
@@ -96,9 +136,9 @@ void setup()
 
   the_display.drawSmallText("booting");
   Homie_setFirmware(FIRMWARE_NAME, FIRMWARE_VERSION);
-  textNode.advertise("intensity").settable(setIntensityHandler);
-  textNode.advertise("text").settable(setTextHandler);
-  //textNode.advertise("image").settable(setImageHandler);
+  display_node.advertise("intensity").settable(setIntensityHandler);
+  display_node.advertise("text").settable(setTextHandler);
+  display_node.advertise("image").settable(setImageHandler);  
   Homie.onEvent(onHomieEvent);
   Homie.setup();
 }
